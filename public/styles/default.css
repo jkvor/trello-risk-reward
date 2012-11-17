@@ -1,0 +1,31 @@
+/* top right bottom left */
+
+body {
+  font-family: Helvetica, Courier, Arial;
+  background: #FFFFFF;
+}
+
+#left-frame {
+  width: 666px;
+  float: left;
+}
+
+.cell {
+  width: 208px;
+  float:left;
+  margin: 0px;
+  padding: 4px;
+  border: solid 1px #AAAAAA;
+}
+
+#right-frame {
+  float: left;
+  border: solid 1px #000000;
+}
+
+.card {
+  width: 196px;
+  margin: 2px;
+  padding: 4px;
+  border: solid 1px #AAAAAA;
+}

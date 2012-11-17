@@ -1,1 +1,58 @@
-<%= @board.name %> has <%= @cards.count %> cards!!!
+<h1><%= @board.name %></h1>
+
+<div id="left-frame">
+  <div id="cell-1" class="cell">
+    <% @buckets[:'1'].each do |card| %>
+      <div class="card"><%= card.name %></div>
+    <% end %>
+  </div>
+  <div id="cell-2" class="cell">
+    <% @buckets[:'2'].each do |card| %>
+      <div class="card"><%= card.name %></div>
+    <% end %>
+  </div>
+  <div id="cell-3" class="cell">
+    <% @buckets[:'3'].each do |card| %>
+      <div class="card"><%= card.name %></div>
+    <% end %>
+  </div>
+  <div style="clear: both"></div>
+  <div id="cell-4" class="cell">
+    <% @buckets[:'4'].each do |card| %>
+      <div class="card"><%= card.name %></div>
+    <% end %>
+  </div>
+  <div id="cell-5" class="cell">
+    <% @buckets[:'5'].each do |card| %>
+      <div class="card"><%= card.name %></div>
+    <% end %>
+  </div>
+  <div id="cell-6" class="cell">
+    <% @buckets[:'6'].each do |card| %>
+      <div class="card"><%= card.name %></div>
+    <% end %>
+  </div>
+  <div style="clear: both"></div>
+  <div id="cell-7" class="cell">
+    <% @buckets[:'7'].each do |card| %>
+      <div class="card"><%= card.name %></div>
+    <% end %>
+  </div>
+  <div id="cell-8" class="cell">
+    <% @buckets[:'8'].each do |card| %>
+      <div class="card"><%= card.name %></div>
+    <% end %>
+  </div>
+  <div id="cell-9" class="cell">
+    <% @buckets[:'9'].each do |card| %>
+      <div class="card"><%= card.name %></div>
+    <% end %>
+  </div>
+  <div style="clear: both"></div>
+</div>
+<div id="right-frame">
+  <% @buckets[:'0'].each do |card| %>
+    <div class="card"><%= card.name %></div>
+  <% end %>
+</div>
+<div style="clear: both"></div>
