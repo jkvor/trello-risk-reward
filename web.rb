@@ -10,6 +10,11 @@ include Trello::Authorization
 
 $stdout.sync = true
 
+# [impact, effort]
+CELL_LAYOUT = [["high",   "high"], ["high",   "medium"], ["high",   "low"],
+               ["medium", "high"], ["medium", "medium"], ["medium", "low"],
+               ["low",    "high"], ["low",    "medium"], ["low",    "low"]]
+
 Trello::Authorization.const_set :AuthPolicy, OAuthPolicy
 OAuthPolicy.consumer_credential = OAuthCredential.new ENV['TRELLO_API_KEY'], ENV['TRELLO_OAUTH_SECRET']
 OAuthPolicy.token = OAuthCredential.new ENV['TRELLO_USER_KEY'], nil
@@ -54,14 +59,15 @@ class MyApp < Sinatra::Application
     erb :board
   end
 
+  post '/boards/:id' do
+    puts "params: #{params.inspect}"
+    redirect "/boards/#{params[:id]}"
+  end
+
 protected
   def divide_cards(cards)
     buckets = initialize_buckets
-    # [impact, effort]
-    layout = [["high",   "high"], ["high",   "medium"], ["high",   "low"],
-              ["medium", "high"], ["medium", "medium"], ["medium", "low"],
-              ["low",    "high"], ["low",    "medium"], ["low",    "low"]]
-    layout.each_with_index do |pair,index|
+    CELL_LAYOUT.each_with_index do |pair,index|
       impact, effort = pair
       cards.each do |cell, card|
         if cell then

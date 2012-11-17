@@ -12,7 +12,6 @@ body {
 
 .cell {
   width: 208px;
-  float:left;
   margin: 0px;
   padding: 4px;
   border: solid 1px #AAAAAA;
@@ -20,7 +19,7 @@ body {
 
 #right-frame {
   float: left;
-  border: solid 1px #000000;
+  margin-left: 10px;
 }
 
 .card {

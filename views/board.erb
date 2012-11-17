@@ -1,58 +1,52 @@
+<script>
+  function submitForm(card, impact, effort) {
+    var form = document.getElementById('myform');
+    var input1 = document.createElement('input');
+    input1.name = "impact";
+    input1.value = impact;
+    input1.type = "hidden";
+    form.appendChild(input1);
+    var input2 = document.createElement('input');
+    input2.name = "effort";
+    input2.value = effort;
+    input2.type = "hidden";
+    form.appendChild(input2);
+    form.submit();
+  }
+</script>
 <h1><%= @board.name %></h1>
 
 <div id="left-frame">
-  <div id="cell-1" class="cell">
-    <% @buckets[:'1'].each do |card| %>
-      <div class="card"><%= card.name %></div>
+  <table>
+  <% (1..9).to_a.each do |i| %>
+    <% if (i+2) % 3 == 0 then %>
+    <tr>
     <% end %>
-  </div>
-  <div id="cell-2" class="cell">
-    <% @buckets[:'2'].each do |card| %>
-      <div class="card"><%= card.name %></div>
+      <td id="cell-<%= i %>" class="cell">
+      <% @buckets[i.to_s.to_sym].each do |card| %>
+        <div class="card"><%= card.name %></div>
+      <% end %>
+      </td>
+    <% if i % 3 == 0 then %>
+    </tr>
     <% end %>
-  </div>
-  <div id="cell-3" class="cell">
-    <% @buckets[:'3'].each do |card| %>
-      <div class="card"><%= card.name %></div>
-    <% end %>
-  </div>
-  <div style="clear: both"></div>
-  <div id="cell-4" class="cell">
-    <% @buckets[:'4'].each do |card| %>
-      <div class="card"><%= card.name %></div>
-    <% end %>
-  </div>
-  <div id="cell-5" class="cell">
-    <% @buckets[:'5'].each do |card| %>
-      <div class="card"><%= card.name %></div>
-    <% end %>
-  </div>
-  <div id="cell-6" class="cell">
-    <% @buckets[:'6'].each do |card| %>
-      <div class="card"><%= card.name %></div>
-    <% end %>
-  </div>
-  <div style="clear: both"></div>
-  <div id="cell-7" class="cell">
-    <% @buckets[:'7'].each do |card| %>
-      <div class="card"><%= card.name %></div>
-    <% end %>
-  </div>
-  <div id="cell-8" class="cell">
-    <% @buckets[:'8'].each do |card| %>
-      <div class="card"><%= card.name %></div>
-    <% end %>
-  </div>
-  <div id="cell-9" class="cell">
-    <% @buckets[:'9'].each do |card| %>
-      <div class="card"><%= card.name %></div>
-    <% end %>
-  </div>
-  <div style="clear: both"></div>
+  <% end %>
+  </table>
 </div>
 <div id="right-frame">
+  <form method="post" id="myform">
   <% @buckets[:'0'].each do |card| %>
-    <div class="card"><%= card.name %></div>
+    <div class="card">
+      <p><%= card.name %></p>
+      <p>
+      <% CELL_LAYOUT.each_with_index do |cell, i| %>
+        <% impact, effort = cell %>
+        <input type="button" onclick="submitForm('<%= card.id %>', '<%= impact %>', '<%= effort %>')" value=" ">
+        <% if (i+1) % 3 == 0 then %><br/><% end %>
+      <% end %>
+      </p>
+    </div>
   <% end %>
+  </form>
 </div>
 <div style="clear: both"></div>
