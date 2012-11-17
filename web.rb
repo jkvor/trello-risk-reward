@@ -2,6 +2,16 @@ require 'sinatra'
 require 'redis'
 require 'oa-openid'
 require 'openid_redis_store'
+require 'trello'
+
+include Trello
+include Trello::Authorization
+
+$stdout.sync = true
+
+Trello::Authorization.const_set :AuthPolicy, OAuthPolicy
+OAuthPolicy.consumer_credential = OAuthCredential.new ENV['TRELLO_API_KEY'], ENV['TRELLO_OAUTH_SECRET']
+OAuthPolicy.token = OAuthCredential.new ENV['TRELLO_USER_KEY'], nil
 
 class MyApp < Sinatra::Application
 
@@ -19,6 +29,13 @@ class MyApp < Sinatra::Application
   get '/' do
     check_session
     "Hello, world"
+  end
+
+  get '/boards/:id' do
+    check_session
+    @board = Board.find(params[:id])
+    @cards = @board.cards
+    erb :board
   end
 
 protected
