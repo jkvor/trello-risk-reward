@@ -3,28 +3,51 @@
 body {
   font-family: Helvetica, Courier, Arial;
   background: #FFFFFF;
+  margin: 0px;
+  padding: 0px;
 }
 
 #left-frame {
-  width: 666px;
   float: left;
-}
-
-.cell {
-  width: 208px;
-  margin: 0px;
-  padding: 4px;
-  border: solid 1px #AAAAAA;
+  text-align: center;
 }
 
 #right-frame {
   float: left;
-  margin-left: 10px;
+}
+
+#cell-table {
+}
+
+.cell {
+  width: 258px;
+  height: 120px;
+  margin: 0px;
+  padding: 4px;
+  vertical-align: top;
+  border: solid 1px #AAAAAA;
+}
+
+#unclassified {
+  width: 260px;
+  height: 400px;
+  margin: 0px;
+  margin-top: 2px;
+  padding: 4px;
+  border: solid 1px #AAAAAA;
 }
 
 .card {
-  width: 196px;
+  width: 246px;
   margin: 2px;
   padding: 4px;
   border: solid 1px #AAAAAA;
 }
+
+a {
+  color: #666666;
+}
+
+a:link { text-decoration: none; }
+a:visited { text-decoration: none; }
+a:hover { text-decoration: none; }

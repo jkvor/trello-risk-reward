@@ -1,52 +1,73 @@
 <script>
-  function submitForm(card, impact, effort) {
-    var form = document.getElementById('myform');
-    var input1 = document.createElement('input');
-    input1.name = "impact";
-    input1.value = impact;
-    input1.type = "hidden";
-    form.appendChild(input1);
-    var input2 = document.createElement('input');
-    input2.name = "effort";
-    input2.value = effort;
-    input2.type = "hidden";
-    form.appendChild(input2);
-    form.submit();
+  var card_map = new Array();
+
+  function allowDrop(ev) {
+    if(ev.target.getAttribute("class") == "cell" || ev.target.id == "unclassified") {
+      ev.preventDefault();
+    }
+  }
+
+  function drag(ev) {
+    ev.dataTransfer.setData("card_id",ev.target.id);
+  }
+
+  function drop(impact, effort, ev) {
+    ev.preventDefault();
+    var card_id = ev.dataTransfer.getData("card_id");
+    var comment_id = card_map[card_id];
+    if (comment_id == undefined) comment_id = '';
+    ev.target.appendChild(document.getElementById(card_id));
+    $.ajax({ 
+      type: "POST",
+      data: { comment: comment_id, impact: impact, effort: effort },
+      url: "/boards/<%= @board.id %>/cards/" + card_id,
+    }).done(function (new_comment) {
+      card_map[card_id] = new_comment;
+    });
   }
 </script>
-<h1><%= @board.name %></h1>
 
+<h1><%= @board.name %></h1>
 <div id="left-frame">
-  <table>
-  <% (1..9).to_a.each do |i| %>
-    <% if (i+2) % 3 == 0 then %>
+  <table id="cell-table">
+  <% CELL_LAYOUT.each_with_index do |cell, i| %>
+    <% impact, effort = cell %>
+    <% if i % 3 == 0 then %>
     <tr>
+      <td><%= impact %> impact</td>
     <% end %>
-      <td id="cell-<%= i %>" class="cell">
-      <% @buckets[i.to_s.to_sym].each do |card| %>
-        <div class="card"><%= card.name %></div>
+      <td id="cell-<%= i+1 %>" class="cell" ondrop="drop('<%= impact %>', '<%= effort %>', event)" ondragover="allowDrop(event)">
+      <% @buckets[(i+1).to_s.to_sym].each do |contents| %>
+        <% card = contents[:card] %>
+        <script>
+          card_map['<%= card.id %>'] = '<%= contents[:comment] %>';
+        </script>
+        <div id="<%= card.id %>" class="card" draggable="true" ondragstart="drag(event)">
+          <a href="<%= card.url %>" target="_blank"><%= card.name %></a>
+        </div>
       <% end %>
       </td>
-    <% if i % 3 == 0 then %>
+    <% if (i+1) % 3 == 0 then %>
     </tr>
     <% end %>
   <% end %>
+    <tr>
+      <td></td>
+      <td>high effort</td>
+      <td>medium effort</td>
+      <td>low effort</td>
+    </tr>
   </table>
 </div>
 <div id="right-frame">
-  <form method="post" id="myform">
-  <% @buckets[:'0'].each do |card| %>
-    <div class="card">
-      <p><%= card.name %></p>
-      <p>
-      <% CELL_LAYOUT.each_with_index do |cell, i| %>
-        <% impact, effort = cell %>
-        <input type="button" onclick="submitForm('<%= card.id %>', '<%= impact %>', '<%= effort %>')" value=" ">
-        <% if (i+1) % 3 == 0 then %><br/><% end %>
-      <% end %>
-      </p>
-    </div>
-  <% end %>
-  </form>
+  <div id="unclassified" ondrop="drop('', '', event)" ondragover="allowDrop(event)">
+    <p>Unclassified</p>
+    <% @buckets[:'0'].each do |contents| %>
+      <% card = contents[:card] %>
+      <div id="<%= card.id %>" class="card" draggable="true" ondragstart="drag(event)">
+        <a href="<%= card.url %>" target="_blank"><%= card.name %></a>
+      </div>
+    <% end %>
+  </div>
 </div>
 <div style="clear: both"></div>

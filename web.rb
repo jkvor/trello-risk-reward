@@ -24,11 +24,11 @@ class Card < BasicData
     self.actions.select {|a|
       a.type == "commentCard" 
     }.map {|c|
-      c.data["text"].match('(impact|effort)=(high|medium|low),\s?(impact|effort)=(high|medium|low)')
-    }.select {|m|
+      [c.id, c.data["text"].match('(impact|effort)=(high|medium|low),\s?(impact|effort)=(high|medium|low)')]
+    }.select {|id, m|
       !m.nil? && m.length == 5
-    }.map {|m|
-      {m[1].to_sym => m[2], m[3].to_sym => m[4]}
+    }.map {|id, m|
+      {:id => id, m[1].to_sym => m[2], m[3].to_sym => m[4]}
     }.first rescue nil
   end
 end
@@ -48,20 +48,26 @@ class MyApp < Sinatra::Application
 
   get '/' do
     check_session
-    "Hello, world"
+    "OK"
   end
 
   get '/boards/:id' do
-    #check_session
+    check_session
     @board = Board.find(params[:id])
     cards = @board.cards.map {|c| [c.cell, c] }
     @buckets = divide_cards(cards)
     erb :board
   end
 
-  post '/boards/:id' do
-    puts "params: #{params.inspect}"
-    redirect "/boards/#{params[:id]}"
+  post '/boards/:board/cards/:card' do
+    check_session
+    impact = params[:impact]
+    effort = params[:effort]
+    card = params[:card]
+    comment = params[:comment]
+    Client.delete("/actions/#{comment}") unless comment.empty?
+    new_comment = JSON.parse Client.post("/cards/#{card}/actions/comments", :text => "impact=#{impact},effort=#{effort}") unless impact.empty? && effort.empty?
+    new_comment["id"] rescue ""
   end
 
 protected
@@ -72,30 +78,23 @@ protected
       cards.each do |cell, card|
         if cell then
           if cell[:impact] == impact && cell[:effort] == effort then
-            buckets[(index+1).to_s.to_sym] << card
+            buckets[(index+1).to_s.to_sym] << {:comment => cell[:id], :card => card}
           end
         end
       end
     end
     cards.each do |cell, card|
       unless cell then
-        buckets[:'0'] << card
+        buckets[:'0'] << {:card => card}
       end
     end
     return buckets
   end
 
   def initialize_buckets
-    {:'1' => [],
-     :'2' => [],
-     :'3' => [],
-     :'4' => [],
-     :'5' => [],
-     :'6' => [],
-     :'7' => [],
-     :'8' => [],
-     :'9' => [],
-     :'0' => []}
+    hash = {}
+    (0..9).to_a.each {|i| hash[i.to_s.to_sym] = [] }
+    hash
   end
 
   def check_session
