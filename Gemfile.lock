@@ -102,6 +102,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  oauth
   omniauth (= 0.3.2)
   openid-redis-store (= 0.0.2)
   ruby-trello

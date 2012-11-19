@@ -10,14 +10,22 @@ include Trello::Authorization
 
 $stdout.sync = true
 
+Trello::Authorization.const_set :AuthPolicy, OAuthPolicy
+
 # [impact, effort]
 CELL_LAYOUT = [["high",   "high"], ["high",   "medium"], ["high",   "low"],
                ["medium", "high"], ["medium", "medium"], ["medium", "low"],
                ["low",    "high"], ["low",    "medium"], ["low",    "low"]]
 
-Trello::Authorization.const_set :AuthPolicy, OAuthPolicy
+CALLBACK_URL = "https://risk-reward.herokuapp.com/auth/trello/callback"
 OAuthPolicy.consumer_credential = OAuthCredential.new ENV['TRELLO_API_KEY'], ENV['TRELLO_OAUTH_SECRET']
-OAuthPolicy.token = OAuthCredential.new ENV['TRELLO_USER_KEY'], nil
+CONSUMER = OAuth::Consumer.new(ENV['TRELLO_API_KEY'], ENV['TRELLO_OAUTH_SECRET'],
+            {:scheme      => :header,
+            :scope       => 'read,write',
+            :http_method => :get,
+            :request_token_path => "https://trello.com/1/OAuthGetRequestToken",
+            :authorize_path     => "https://trello.com/1/OAuthAuthorizeToken",
+            :access_token_path  => "https://trello.com/1/OAuthGetAccessToken"})
 
 class Card < BasicData
   def cell
@@ -41,9 +49,12 @@ class MyApp < Sinatra::Application
     :name   => "google",
     :domain => "heroku.com"
 
-  post "/auth/google/callback" do
-    session["authorized"] = true
-    redirect(session["from"] || "/")
+  get "/auth/trello/callback" do
+    session[:oauth_token] = params[:oauth_token]
+    session[:oauth_verifier] = params[:oauth_verifier]
+    session[:access_token] = session[:request_token].get_access_token({:oauth_verifier => session[:oauth_verifier]})
+    OAuthPolicy.token = OAuthCredential.new session[:access_token], nil
+    "OK"
   end
 
   get '/' do
@@ -98,9 +109,13 @@ protected
   end
 
   def check_session
-    if !session["authorized"]
-      session["from"] = "/"
-      redirect("/auth/google") 
+    if !session[:request_token] || !session[:access_token]
+      request_token = CONSUMER.get_request_token({:oauth_callback => CALLBACK_URL, :scope => "read,write"})
+      session[:request_token] = request_token
+      redirect request_token.authorize_url({:oauth_callback => CALLBACK_URL, :scope => "read,write"})
+    else
+      puts "request token: #{session[:request_token].token} access_token: #{session[:access_token].token}"
+      OAuthPolicy.token = OAuthCredential.new session[:access_token].token, nil
     end
   end
 end
