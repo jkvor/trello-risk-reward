@@ -8,6 +8,18 @@ body {
   padding: 0px;
 }
 
+#board-list {
+  width:500px;
+  padding: 6px;
+  margin:0px auto;
+  margin-top: 40px;
+  border: solid 1px #9C9BC9;
+  font-size: 1.6em;
+}
+.board {
+  margin: 4px;
+}
+
 #left-frame {
   float: left;
   text-align: center;

@@ -1,3 +1,5 @@
+<div id="board-list">
 <% @boards.each do |board| %>
-  <a href="/boards/<%= board.id %>"><%= board.name %></a><br/>
+  <div class="board"><a href="/boards/<%= board.id %>"><%= board.name %></a></div>
 <% end %>
+</div>

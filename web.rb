@@ -54,7 +54,7 @@ class MyApp < Sinatra::Application
     session[:oauth_verifier] = params[:oauth_verifier]
     session[:access_token] = session[:request_token].get_access_token({:oauth_verifier => session[:oauth_verifier]})
     OAuthPolicy.token = OAuthCredential.new session[:access_token], nil
-    "OK"
+    redirect "/"
   end
 
   get '/' do
@@ -111,9 +111,9 @@ protected
 
   def check_session
     if !session[:request_token] || !session[:access_token]
-      request_token = CONSUMER.get_request_token({:oauth_callback => CALLBACK_URL, :scope => "read,write"})
+      request_token = CONSUMER.get_request_token({:oauth_callback => CALLBACK_URL, :scope => "read,write", :name => "Risk-Reward", :expiration => "30days"})
       session[:request_token] = request_token
-      redirect request_token.authorize_url({:oauth_callback => CALLBACK_URL, :scope => "read,write"})
+      redirect request_token.authorize_url({:oauth_callback => CALLBACK_URL, :scope => "read,write", :name => "Risk-Reward", :expiration => "30days"})
     else
       puts "request token: #{session[:request_token].token} access_token: #{session[:access_token].token}"
       OAuthPolicy.token = OAuthCredential.new session[:access_token].token, nil
