@@ -1,7 +1,5 @@
 require 'sinatra'
-require 'redis'
-require 'oa-openid'
-require 'openid_redis_store'
+require 'oauth'
 require 'trello'
 require 'json'
 
