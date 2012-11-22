@@ -59,7 +59,8 @@ class MyApp < Sinatra::Application
 
   get '/' do
     check_session
-    "OK"
+    @boards = Member.find("me").boards
+    erb :boards
   end
 
   get '/boards/:id' do
