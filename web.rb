@@ -15,7 +15,7 @@ CELL_LAYOUT = [["high",   "high"], ["high",   "medium"], ["high",   "low"],
                ["medium", "high"], ["medium", "medium"], ["medium", "low"],
                ["low",    "high"], ["low",    "medium"], ["low",    "low"]]
 
-CALLBACK_URL = "https://risk-reward.herokuapp.com/auth/trello/callback"
+CALLBACK_PATH = "/auth/trello/callback"
 OAuthPolicy.consumer_credential = OAuthCredential.new ENV['TRELLO_API_KEY'], ENV['TRELLO_OAUTH_SECRET']
 CONSUMER = OAuth::Consumer.new(ENV['TRELLO_API_KEY'], ENV['TRELLO_OAUTH_SECRET'],
             {:scheme      => :header,
@@ -105,9 +105,9 @@ protected
 
   def check_session
     if !session[:request_token] || !session[:access_token]
-      request_token = CONSUMER.get_request_token({:oauth_callback => CALLBACK_URL, :scope => "read,write", :name => "Risk-Reward", :expiration => "30days"})
+      request_token = CONSUMER.get_request_token({:oauth_callback => request.scheme + "://" + request.host_with_port + CALLBACK_PATH, :scope => "read,write", :name => "Risk-Reward", :expiration => "30days"})
       session[:request_token] = request_token
-      redirect request_token.authorize_url({:oauth_callback => CALLBACK_URL, :scope => "read,write", :name => "Risk-Reward", :expiration => "30days"})
+      redirect request_token.authorize_url({:oauth_callback => request.scheme + "://" + request.host_with_port + CALLBACK_PATH, :scope => "read,write", :name => "Risk-Reward", :expiration => "30days"})
     else
       puts "request token: #{session[:request_token].token} access_token: #{session[:access_token].token}"
       OAuthPolicy.token = OAuthCredential.new session[:access_token].token, nil
