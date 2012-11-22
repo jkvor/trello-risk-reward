@@ -109,7 +109,6 @@ protected
       session[:request_token] = request_token
       redirect request_token.authorize_url({:oauth_callback => request.scheme + "://" + request.host_with_port + CALLBACK_PATH, :scope => "read,write", :name => "Risk-Reward", :expiration => "30days"})
     else
-      puts "request token: #{session[:request_token].token} access_token: #{session[:access_token].token}"
       OAuthPolicy.token = OAuthCredential.new session[:access_token].token, nil
     end
   end
