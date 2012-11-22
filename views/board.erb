@@ -34,7 +34,7 @@
     <% impact, effort = cell %>
     <% if i % 3 == 0 then %>
     <tr>
-      <td><%= impact %> impact</td>
+      <td class="side-label"><%= impact %> impact</td>
     <% end %>
       <td id="cell-<%= i+1 %>" class="cell" ondrop="drop('<%= impact %>', '<%= effort %>', event)" ondragover="allowDrop(event)">
       <% @buckets[(i+1).to_s.to_sym].each do |contents| %>
@@ -43,7 +43,7 @@
           card_map['<%= card.id %>'] = '<%= contents[:comment] %>';
         </script>
         <div id="<%= card.id %>" class="card" draggable="true" ondragstart="drag(event)">
-          <a href="<%= card.url %>" target="_blank"><%= card.name %></a>
+          <a href="<%= card.url %>" target="_blank"><img class="link-img" src="/images/external-link-grey-dark06.png" /></a><span class="card-title"><%= card.name %></span>
         </div>
       <% end %>
       </td>
@@ -53,19 +53,19 @@
   <% end %>
     <tr>
       <td></td>
-      <td>high effort</td>
-      <td>medium effort</td>
-      <td>low effort</td>
+      <td class="bottom-label">high effort</td>
+      <td class="bottom-label">medium effort</td>
+      <td class="bottom-label">low effort</td>
     </tr>
   </table>
 </div>
 <div id="right-frame">
   <div id="unclassified" ondrop="drop('', '', event)" ondragover="allowDrop(event)">
-    <p>Unclassified</p>
+    <h6>Unclassified</h6>
     <% @buckets[:'0'].each do |contents| %>
       <% card = contents[:card] %>
       <div id="<%= card.id %>" class="card" draggable="true" ondragstart="drag(event)">
-        <a href="<%= card.url %>" target="_blank"><%= card.name %></a>
+        <a href="<%= card.url %>" target="_blank"><img class="link-img" src="/images/external-link-grey-dark06.png" /></a><span class="card-title"><%= card.name %></span>
       </div>
     <% end %>
   </div>
