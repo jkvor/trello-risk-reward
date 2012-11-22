@@ -43,11 +43,7 @@ end
 
 class MyApp < Sinatra::Application
 
-  use Rack::Session::Cookie, :secret => ENV["SECURE_KEY"], :expire_after => (60 * 60 * 24 * 7)
-  use OmniAuth::Strategies::GoogleApps,
-    OpenID::Store::Redis.new(Redis.connect(:url => ENV["REDISTOGO_URL"])),
-    :name   => "google",
-    :domain => "heroku.com"
+  use Rack::Session::Cookie, :expire_after => (60 * 60 * 24 * 7)
 
   get "/auth/trello/callback" do
     session[:oauth_token] = params[:oauth_token]
