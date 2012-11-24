@@ -52,17 +52,27 @@ class MyApp < Sinatra::Application
   end
 
   get '/' do
-    check_session
-    @boards = Member.find("me").boards
-    erb :boards
+    begin
+      check_session
+      @boards = Member.find("me").boards
+      erb :boards
+    rescue Trello::Error
+      session.clear
+      redirect "/"
+    end
   end
 
   get '/boards/:id' do
-    check_session
-    @board = Board.find(params[:id])
-    cards = @board.cards.map {|c| [c.cell, c] }
-    @buckets = divide_cards(cards)
-    erb :board
+    begin
+      check_session
+      @board = Board.find(params[:id])
+      cards = @board.cards.map {|c| [c.cell, c] }
+      @buckets = divide_cards(cards)
+      erb :board
+    rescue Trello::Error
+      session.clear
+      redirect "/boards/#{params[:id]}"
+    end
   end
 
   post '/boards/:board/cards/:card' do
