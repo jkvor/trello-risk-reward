@@ -20,14 +20,14 @@
     $.ajax({ 
       type: "POST",
       data: { comment: comment_id, impact: impact, effort: effort },
-      url: "/boards/<%= @board.id %>/cards/" + card_id,
+      url: "/boards/<%= @board["id"] %>/cards/" + card_id,
     }).done(function (new_comment) {
       card_map[card_id] = new_comment;
     });
   }
 </script>
 
-<h1><%= @board.name %></h1>
+<h1><%= @board["name"] %></h1>
 <div id="left-frame">
   <table id="cell-table">
   <% CELL_LAYOUT.each_with_index do |cell, i| %>
@@ -40,10 +40,10 @@
       <% @buckets[(i+1).to_s.to_sym].each do |contents| %>
         <% card = contents[:card] %>
         <script>
-          card_map['<%= card.id %>'] = '<%= contents[:comment] %>';
+          card_map['<%= card["id"] %>'] = '<%= contents[:comment] %>';
         </script>
-        <div id="<%= card.id %>" class="card" draggable="true" ondragstart="drag(event)">
-          <a href="<%= card.url %>" target="_blank"><img class="link-img" src="/images/external-link-grey-dark06.png" /></a><span class="card-title"><%= card.name %></span>
+        <div id="<%= card["id"] %>" class="card" draggable="true" ondragstart="drag(event)">
+          <a href="<%= card["url"] %>" target="_blank"><img class="link-img" src="/images/external-link-grey-dark06.png" /></a><span class="card-title"><%= card["name"] %></span>
         </div>
       <% end %>
       </td>
@@ -64,8 +64,8 @@
     <h6>Unclassified</h6>
     <% @buckets[:'0'].each do |contents| %>
       <% card = contents[:card] %>
-      <div id="<%= card.id %>" class="card" draggable="true" ondragstart="drag(event)">
-        <a href="<%= card.url %>" target="_blank"><img class="link-img" src="/images/external-link-grey-dark06.png" /></a><span class="card-title"><%= card.name %></span>
+      <div id="<%= card["id"] %>" class="card" draggable="true" ondragstart="drag(event)">
+        <a href="<%= card["url"] %>" target="_blank"><img class="link-img" src="/images/external-link-grey-dark06.png" /></a><span class="card-title"><%= card["name"] %></span>
       </div>
     <% end %>
   </div>

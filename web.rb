@@ -25,20 +25,6 @@ CONSUMER = OAuth::Consumer.new(ENV['TRELLO_API_KEY'], ENV['TRELLO_OAUTH_SECRET']
             :authorize_path     => "https://trello.com/1/OAuthAuthorizeToken",
             :access_token_path  => "https://trello.com/1/OAuthGetAccessToken"})
 
-class Card < BasicData
-  def cell
-    self.actions.select {|a|
-      a.type == "commentCard" 
-    }.map {|c|
-      [c.id, c.data["text"].match('(impact|effort)=(high|medium|low),\s?(impact|effort)=(high|medium|low)')]
-    }.select {|id, m|
-      !m.nil? && m.length == 5
-    }.map {|id, m|
-      {:id => id, m[1].to_sym => m[2], m[3].to_sym => m[4]}
-    }.first rescue nil
-  end
-end
-
 class MyApp < Sinatra::Application
 
   use Rack::Session::Cookie, :expire_after => (60 * 60 * 24 * 7)
@@ -65,9 +51,12 @@ class MyApp < Sinatra::Application
   get '/boards/:id' do
     begin
       check_session
-      @board = Board.find(params[:id])
-      cards = @board.cards.map {|c| [c.cell, c] }
-      @buckets = divide_cards(cards)
+      @board = JSON.parse Client.get("/boards/#{params[:id]}", {:fields => ["name", "desc"]})
+      opts = {:lists => "open", :fields => ["name", "url", "labels"], :actions => "commentCard"}
+      cards = JSON.parse Client.get("/boards/#{params[:id]}/cards", opts)
+      filters = params[:labels].split(",") rescue []
+      collection = cards.select {|c| filter(c, filters) }.map {|c| [cell(c), c] }
+      @buckets = divide_collection(collection)
       erb :board
     rescue Trello::Error
       session.clear
@@ -87,11 +76,28 @@ class MyApp < Sinatra::Application
   end
 
 protected
-  def divide_cards(cards)
+  def filter(card, filters)
+    return true if filters == []
+    !filters.select {|f| card["labels"].map {|l| l["name"] }.include? f }.empty?
+  end
+
+  def cell(card)
+    card["actions"].select {|a|
+      a["type"] == "commentCard"
+    }.map {|c|
+      [c["id"], c["data"]["text"].match('(impact|effort)=(high|medium|low),\s?(impact|effort)=(high|medium|low)')]
+    }.select {|id, m|
+      !m.nil? && m.length == 5
+    }.map {|id, m|
+      {:id => id, m[1].to_sym => m[2], m[3].to_sym => m[4]}
+    }.first rescue nil
+  end
+
+  def divide_collection(collection)
     buckets = initialize_buckets
     CELL_LAYOUT.each_with_index do |pair,index|
       impact, effort = pair
-      cards.each do |cell, card|
+      collection.each do |cell, card|
         if cell then
           if cell[:impact] == impact && cell[:effort] == effort then
             buckets[(index+1).to_s.to_sym] << {:comment => cell[:id], :card => card}
@@ -99,7 +105,7 @@ protected
         end
       end
     end
-    cards.each do |cell, card|
+    collection.each do |cell, card|
       unless cell then
         buckets[:'0'] << {:card => card}
       end
